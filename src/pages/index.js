@@ -1,4 +1,4 @@
-import { Get, Post, Search } from "../../api/ProductService";
+import { Get, Post, Search, Delete, Put } from "../../api/ProductService";
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -10,8 +10,6 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  FormErrorMessage,
-  FormHelperText,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -24,20 +22,21 @@ import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
   Tr,
   Th,
   Td,
-  TableCaption,
   TableContainer,
   Text,
 } from "@chakra-ui/react";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+  const [modalHeader, setModalHeader] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [action, setAction] = useState("");
 
   //property states
+  const [id, setId] = useState("");
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -74,6 +73,8 @@ const Home = () => {
               colorScheme="blue"
               onClick={() => {
                 setShowAddModal(true);
+                setModalHeader("Add New Product");
+                setAction("Add");
               }}
             >
               Add New Product
@@ -113,10 +114,34 @@ const Home = () => {
                       </Td>
                       <Td>
                         <Flex>
-                          <Button flex={1} marginX={1} colorScheme="blue">
+                          <Button
+                            flex={1}
+                            marginX={1}
+                            colorScheme="blue"
+                            onClick={() => {
+                              setShowAddModal(true);
+                              setModalHeader("Edit Product");
+                              setId(product.Id);
+                              setName(product.Name);
+                              setCategory(product.Category);
+                              setDescription(product.Description);
+                              setPrice(product.Price);
+                              setImage(product.Image);
+                              setAction("Edit");
+                            }}
+                          >
                             Edit
                           </Button>
-                          <Button flex={1} marginX={1} colorScheme="red">
+                          <Button
+                            flex={1}
+                            marginX={1}
+                            colorScheme="red"
+                            onClick={() => {
+                              Delete(product.Id).then(() => {
+                                getProducts();
+                              });
+                            }}
+                          >
                             Delete
                           </Button>
                         </Flex>
@@ -140,7 +165,7 @@ const Home = () => {
       >
         <ModalOverlay></ModalOverlay>
         <ModalContent>
-          <ModalHeader>Add New Product</ModalHeader>
+          <ModalHeader>{modalHeader}</ModalHeader>
           <ModalCloseButton></ModalCloseButton>
           <ModalBody>
             <Stack>
@@ -149,6 +174,7 @@ const Home = () => {
                 <Input
                   placeholder="Enter product name"
                   onChange={(e) => setName(e.target.value)}
+                  value={name}
                 ></Input>
               </FormControl>
               <FormControl isRequired={true}>
@@ -156,6 +182,7 @@ const Home = () => {
                 <Input
                   placeholder="Enter product category"
                   onChange={(e) => setCategory(e.target.value)}
+                  value={category}
                 ></Input>
               </FormControl>
               <FormControl isRequired={true}>
@@ -163,6 +190,7 @@ const Home = () => {
                 <Input
                   placeholder="Enter product description"
                   onChange={(e) => setDescription(e.target.value)}
+                  value={description}
                 ></Input>
               </FormControl>
               <FormControl isRequired={true}>
@@ -170,6 +198,7 @@ const Home = () => {
                 <Input
                   placeholder="Enter product price"
                   onChange={(e) => setPrice(e.target.value)}
+                  value={price}
                 ></Input>
               </FormControl>
               <FormControl isRequired={true}>
@@ -177,6 +206,7 @@ const Home = () => {
                 <Input
                   placeholder="Enter product image"
                   onChange={(e) => setImage(e.target.value)}
+                  value={image}
                 ></Input>
               </FormControl>
             </Stack>
@@ -193,10 +223,20 @@ const Home = () => {
                     price: price,
                     image: image,
                   };
-                  Post(product).then(() => {
-                    getProducts();
-                    setShowAddModal(false);
-                  });
+
+                  if (action === "Add") {
+                    Post(product).then(() => {
+                      getProducts();
+                      setShowAddModal(false);
+                    });
+                  }
+
+                  if (action === "Edit") {
+                    Put(id, product).then(() => {
+                      getProducts();
+                      setShowAddModal(false);
+                    });
+                  }
                 }}
               >
                 Save
