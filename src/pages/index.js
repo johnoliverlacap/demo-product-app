@@ -112,10 +112,14 @@ const Home = () => {
                         <Image boxSize="50" src={product.Image}></Image>
                       </Td>
                       <Td>
-                        <ButtonGroup>
-                          <Button colorScheme="blue">Edit</Button>
-                          <Button colorScheme="red">Delete</Button>
-                        </ButtonGroup>
+                        <Flex>
+                          <Button flex={1} marginX={1} colorScheme="blue">
+                            Edit
+                          </Button>
+                          <Button flex={1} marginX={1} colorScheme="red">
+                            Delete
+                          </Button>
+                        </Flex>
                       </Td>
                     </Tr>
                   ))}
